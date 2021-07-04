@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Edit Textese</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@600;700&display=swap');
+
+        table {
+            width: 100%;
+            table-layout: fixed;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: scroll;
+        }
+
+        .text_input {
+            /* width: 90%; */
+            width: 100%;
+            font-family: 'Open Sans', sans-serif;
+            background-color: #121212;
+            border-style: solid;
+            border-radius: 5px;
+            border-width: 1px;
+            padding: 3px 5px;
+            font-size: 20px;
+            color: white;
+            box-sizing: border-box;
+        }
+
+        .text_display {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: white;
+            font-family: 'Open Sans', sans-serif;
+            font-size: 20px;
+        }
+
+        .icon_style {
+            width: 20px;
+            filter: brightness(100%);
+        }
+
+        .icon_style:hover {
+            filter: brightness(200%);
+        }
+
+        .heading_style {
+            color: white;
+            font-family: 'Open Sans', sans-serif;
+            font-size: 25px;
+            font-weight: 800;
+            padding: 0 0 10px 0;
+        }
+
+        .button_style {
+            font-size: 20px;
+            font-family: 'Open Sans', sans-serif;
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 5px;
+            border-width: 0px;
+
+            color: white;
+
+            text-transform: uppercase;
+
+            margin: 0px 5px;
+            filter: brightness(100%);
+            cursor: pointer;
+        }
+
+        .button_style:hover {
+            filter: brightness(150%);
+        }
+    </style>
+</head>
+
+<body style="background-color:#121212;">
+
+
+    <table>
+        <tr>
+            <th width=10px style="vertical-align: bottom;"><input type="image" id="settings" alt="*"
+                    src="icons/setting.png" class="icon_style"></th>
+            <th width=100px class="heading_style">Shortcut</th>
+            <th width=200px class="heading_style">URL</th>
+        </tr>
+        <tr>
+            <td align="center"><input type="image" id="add" alt="+" src="icons/plus.png" class="icon_style"></td>
+            <td><input type="text" id="shortcut" class="text_input" autofocus></td>
+            <td><input type="text" id="url" class="text_input"></td>
+        </tr>
+        <tbody id="sc_table"></tbody>
+    </table>
+
+    <table>
+        <tr style="float: right;">
+            <td>
+                <button class="button_style" id="clear" style="background-color: #b00020;">
+                    Clear
+                </button>
+            </td>
+            <td>
+                <button class="button_style" id="export" style="background-color: #3700b3;">
+                    Export
+                </button>
+            </td>
+            <td>
+                <!-- <input type="file"  class="button_style" id="import" style="background-color: green;" title="Import" /> -->
+                <label for="import" class="button_style" style="background-color: green;">
+                    Import
+                </label>
+                <input id="import" type="file" accept="application/json, text/plain" style="display: none;" />
+            </td>
+
+
+        </tr>
+    </table>
+</body>
+<script src="logic.js"></script>
+
+</html>
