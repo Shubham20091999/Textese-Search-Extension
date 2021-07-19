@@ -57,10 +57,11 @@ async function refresh() {
   // if (data.shortcuts)
   //   shortcuts = data.shortcuts;
 
-  chrome.storage.sync.get("selected", function (data) {
+  chrome.storage.sync.get("shortcuts", function (data) {
     try {
       if (data.shortcuts)
         shortcuts = data.shortcuts;
+
     }
     catch (e) {
       console.error(e);
