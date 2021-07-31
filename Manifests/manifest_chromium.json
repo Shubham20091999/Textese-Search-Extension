@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Textese Search",
   "description": "To use, type '.' + Your Shortcut in URL bar",
-  "version": "1.1",
+  "version": "1.3.2",
   "icons": {
     "16": "icons/Icon16.png",
     "48": "icons/Icon48.png",
@@ -28,12 +28,11 @@
     "tabs"
   ],
   "commands": {
-    "toggle-feature": {
+    "Open-Shortcuts-Page": {
       "suggested_key": {
-        "default": "Ctrl+Shift+Y",
-        "linux": "Ctrl+Shift+U"
+        "default": "Alt+Shift+D"
       },
-      "description": "Send a 'toggle-feature' event"
+      "description": "Open Shortcuts Page"
     }
   }
 }

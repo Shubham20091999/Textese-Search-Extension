@@ -2,7 +2,13 @@
   "manifest_version": 2,
   "name": "Textese Search",
   "description": "To use, type '.' + Your Shortcut in URL bar",
-  "version": "1.3",
+  "version": "1.3.2",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "shubham20091999@gmail.com",
+      "strict_min_version": "57.0"
+    }
+  },
   "icons": {
     "16": "icons/Icon16.png",
     "48": "icons/Icon48.png",
@@ -30,8 +36,7 @@
   "commands": {
     "Open-Shortcuts-Page": {
       "suggested_key": {
-        "default": "Ctrl+Shift+V",
-        "linux": "Ctrl+Shift+V"
+        "default": "Alt+Shift+D"
       },
       "description": "Open Shortcuts Page"
     }

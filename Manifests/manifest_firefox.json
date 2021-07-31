@@ -34,12 +34,11 @@
     "tabs"
   ],
   "commands": {
-    "toggle-feature": {
+    "Open-Shortcuts-Page": {
       "suggested_key": {
-        "default": "Ctrl+Shift+Y",
-        "linux": "Ctrl+Shift+U"
+        "default": "Alt+Shift+D"
       },
-      "description": "Send a 'toggle-feature' event"
+      "description": "Open Shortcuts Page"
     }
   }
 }
