@@ -60,6 +60,16 @@ function download(data, filename, type) {
 function elementById(id) {
 	return document.getElementById(id);
 }
+
+function getDisplayTextFromURL(url){
+	let disp=url;
+	disp=disp.replace(/(^\w+:|^)\/\//, '');
+	if(disp[disp.length-1]=="/")
+	{
+		disp=disp.slice(0,-1);
+	}
+	return disp;
+}
 //----------------Communication
 function reload() {
 	refresh();
@@ -236,7 +246,13 @@ function addRow(key, value) {
 	setAttributes(td3, {
 		'class': 'text_display',
 	});
-	td3.appendChild(document.createTextNode(value));
+	let a=document.createElement("a");
+	setAttributes(a,{
+		'href':value,
+		'target':'_blank'
+	})
+	a.appendChild(document.createTextNode(getDisplayTextFromURL(value)))
+	td3.appendChild(a);
 	tr.append(td3);
 
 	table.appendChild(tr);
