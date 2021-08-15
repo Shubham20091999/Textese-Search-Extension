@@ -1,5 +1,6 @@
 let shortcuts = {};
 let tabURL = "";
+let tabTitle = "";
 
 //------------------------Omnibox
 // Provide help text to the user.
@@ -77,7 +78,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         shortcuts = message.data;
         break;
       case "get_url":
-        sendResponse(tabURL);
+        sendResponse({ url: tabURL, title: tabTitle });
         return true;
     }
   }
@@ -89,6 +90,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 async function openPage() {
   chrome.tabs.query({ currentWindow: true, active: true }, (currentTabs) => {
     tabURL = currentTabs[0].url;
+    tabTitle = currentTabs[0].title;
     chrome.tabs.query({
       url: chrome.runtime.getURL('logic.html'),
     }, (extTabs) => {

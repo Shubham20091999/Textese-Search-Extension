@@ -1,4 +1,5 @@
 let shortcuts = {};
+let urlToTitle = {};
 var table = elementById("sc_table");
 var listenersList = new Map();
 isPopup = false;
@@ -61,14 +62,17 @@ function elementById(id) {
 	return document.getElementById(id);
 }
 
-function getDisplayTextFromURL(url){
-	let disp=url;
-	disp=disp.replace(/(^\w+:|^)\/\//, '');
-	if(disp[disp.length-1]=="/")
-	{
-		disp=disp.slice(0,-1);
+function getDisplayTextFromURL(url) {
+	let disp = url;
+	disp = disp.replace(/(^\w+:|^)\/\//, '');
+	if (disp[disp.length - 1] == "/") {
+		disp = disp.slice(0, -1);
 	}
-	return disp;
+	base = disp.split("/")[0];
+	if (urlToTitle[url] == null)
+		return disp;
+
+	return base + " > " + urlToTitle[url];
 }
 //----------------Communication
 function reload() {
@@ -93,16 +97,18 @@ function refresh() {
 }
 
 function save() {
-	chrome.storage.sync.set({ shortcuts });
+	chrome.storage.sync.set({ shortcuts, urlToTitle });
 }
 
 function load(callback) {
-	chrome.storage.sync.get('shortcuts', (data) => {
+	chrome.storage.sync.get(['shortcuts', 'urlToTitle'], (data) => {
+		console.log(data);
 		if (data.shortcuts)
 			shortcuts = data.shortcuts;
+		if (data.urlToTitle)
+			urlToTitle = data.urlToTitle;
 		callback();
 	});
-	// refresh();
 }
 
 function addAddListener() {
@@ -130,8 +136,8 @@ function addAddListener() {
 				if (window.confirm("Export as JSON")) {
 					downloadShortcuts();
 				}
-				else{
-					
+				else {
+
 				}
 				shortcuts = {};
 				shortcut_input.value = "";
@@ -246,10 +252,10 @@ function addRow(key, value) {
 	setAttributes(td3, {
 		'class': 'text_display',
 	});
-	let a=document.createElement("a");
-	setAttributes(a,{
-		'href':value,
-		'target':'_blank'
+	let a = document.createElement("a");
+	setAttributes(a, {
+		'href': value,
+		'target': '_blank'
 	})
 	a.appendChild(document.createTextNode(getDisplayTextFromURL(value)))
 	td3.appendChild(a);
@@ -288,9 +294,10 @@ function deleteShortcut(key, doRefresh = true) {
 //-------------Default Calls
 function loadURL() {
 	OnDocLoad(() => {
-		chrome.runtime.sendMessage({ command: "get_url" }, (url) => {
+		chrome.runtime.sendMessage({ command: "get_url" }, (pageinfo) => {
 			addAddListener();
-			elementById('url').value = url;
+			elementById('url').value = pageinfo.url;
+			urlToTitle[pageinfo.url] = pageinfo.title;
 		});
 	});
 }
