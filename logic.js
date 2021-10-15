@@ -1,19 +1,24 @@
+//Map from shortcuts to url
 let shortcuts = {};
+//Map from url to Title
 let urlToTitle = {};
+//Table HTML Element
 var table = elementById("sc_table");
+//Map for all delete listeners so that we can delete these listeners when When we delete the row
 var listenersList = new Map();
+//Legacy:To check if current window is a Popup
 isPopup = false;
 
 //---------------utils
-function getCheckboxId(id) {
-	return `checkbox#${id}`;
+function getDeleteButtonId(id) {
+	return `delete#${id}`;
 }
 
 function getRowId(id) {
 	return `row#${id}`;
 }
 
-
+//call "fn()" when Doucument is loaded
 function OnDocLoad(fn) {
 	if (document.readyState != 'loading') {
 		fn();
@@ -21,21 +26,6 @@ function OnDocLoad(fn) {
 	else {
 		document.addEventListener('DOMContentLoaded', fn)
 	}
-}
-
-function copyToClipboard(text) {
-	var dummy = document.createElement("textarea");
-	dummy.setAttribute('readonly', '');
-	// to avoid breaking orgain page when copying more words
-	// cant copy when adding below this code
-	// dummy.style.display = 'none'
-	document.body.appendChild(dummy);
-	//Be careful if you use texarea. setAttribute('value', value), which works with "input" does not work with "textarea". – Eduard
-	dummy.value = text;
-	dummy.select();
-	document.execCommand("copy");
-	alert("All the Shortcuts are copied to clipboard as JSON");
-	document.body.removeChild(dummy);
 }
 
 // Function to download data to a file
@@ -57,11 +47,11 @@ function download(data, filename, type) {
 	}
 }
 
-
 function elementById(id) {
 	return document.getElementById(id);
 }
 
+//Reformat URL
 function getDisplayTextFromURL(url) {
 	let disp = url;
 	disp = disp.replace(/(^\w+:|^)\/\//, '');
@@ -75,20 +65,23 @@ function getDisplayTextFromURL(url) {
 	return base + " > " + urlToTitle[url];
 }
 //----------------Communication
+
+//Reload Table
 function reload() {
 	refresh();
 	deleteTable();
 	createTable();
 }
+
+//Download ShortCuts as JSON
 function downloadShortcuts() {
 	var json_string = JSON.stringify(shortcuts);
-	// copyToClipboard(json_string);
 	download(json_string, "shortcuts.json", "json");
 }
 
+//Refresh Data in storage and in the RT Database
 function refresh() {
 	//Send message to background to update data
-
 	chrome.runtime.sendMessage({
 		command: "load",
 		data: shortcuts
@@ -96,10 +89,12 @@ function refresh() {
 	save();
 }
 
+//Saving Data Into Storage
 function save() {
 	chrome.storage.sync.set({ shortcuts, urlToTitle });
 }
 
+//Loading Data from storage
 function load(callback) {
 	chrome.storage.sync.get(['shortcuts', 'urlToTitle'], (data) => {
 		console.log(data);
@@ -111,6 +106,8 @@ function load(callback) {
 	});
 }
 
+
+//Adding Events on button
 function addAddListener() {
 	OnDocLoad(() => {
 		var add_button = elementById('add');
@@ -118,9 +115,10 @@ function addAddListener() {
 		var url_input = elementById('url');
 		var settings_button = elementById('settings');
 		var clear_button = elementById('clear');
-		var copy_button = elementById("export");
+		var export_button = elementById("export");
 		var import_button = elementById("import");
 
+		//Legacy:Dont show setting button if its a popup
 		if (!isPopup) {
 			settings_button.style.visibility = "hidden";
 		}
@@ -131,13 +129,11 @@ function addAddListener() {
 			});
 		}
 
+		//Clear All Button
 		clear_button.addEventListener('click', function () {
 			if (window.confirm("Confirm Clear All")) {
 				if (window.confirm("Export as JSON")) {
 					downloadShortcuts();
-				}
-				else {
-
 				}
 				shortcuts = {};
 				shortcut_input.value = "";
@@ -145,15 +141,14 @@ function addAddListener() {
 				reload();
 				shortcut_input.focus();
 			}
-			else {
-			}
 		});
 
-		copy_button.addEventListener('click', function () {
+		//Download/Export Shortcuts
+		export_button.addEventListener('click', function () {
 			downloadShortcuts();
 		});
 
-
+		//Import Shortcuts
 		import_button.addEventListener('change', function () {
 			const files = this.files;
 			if (files[0]) {
@@ -179,16 +174,17 @@ function addAddListener() {
 			}
 		});
 
-
+		//Add Shortcut Button
 		add_button.addEventListener('click', function () {
 			var key = shortcut_input.value;
 			var value = url_input.value;
 			addShortcut(key, value);
 		});
 
-
+		//Add Shortcuts Text Fields
 		[shortcut_input, url_input].forEach((input_element) => {
 			input_element.addEventListener("keyup", function (event) {
+				//Call add when "Enter/Return" is pressed
 				if (event.key === 'Enter') {
 					// Cancel the default action, if needed
 					event.preventDefault();
@@ -202,45 +198,52 @@ function addAddListener() {
 
 
 //--------------Short Cuts Operations
+//Delete Table Content
 function deleteTable() {
 	for (const [key, value] of listenersList.entries()) {
-		var link = elementById(getCheckboxId(key));
+		var link = elementById(getDeleteButtonId(key));
 		link.removeEventListener('click', value);
 	}
 	listenersList.clear();
 	table.innerHTML = "";
 }
 
+//Element Attributes setter
 function setAttributes(el, attrs) {
 	for (var key in attrs) {
 		el.setAttribute(key, attrs[key]);
 	}
 }
 
+//Add row to Table
 function addRow(key, value) {
+
+	//Creating Data Row
 	let tr = document.createElement('tr');
 	setAttributes(tr, { 'id': getRowId(key) });
-	let td1 = document.createElement('td');
-	td1.setAttribute('align', 'center');
-	let input = document.createElement('input');
 
+	//Delete Button
+	let td1 = document.createElement('td');
+	setAttributes(td1,
+		{'align':'center'});
+	let input = document.createElement('input');
 	setAttributes(input, {
 		'type': 'image',
 		'alt': 'x',
 		'src': 'icons/close.png',
 		'class': 'icon_style',
-		'id': getCheckboxId(key)
+		'id': getDeleteButtonId(key)
 	});
 	td1.appendChild(input);
+	//Adding Delete Button listener
 	var listener = function () {
-		deleteShortcut(key);
+		deleteShortcut(key, true);
 	};
 	input.addEventListener('click', listener);
 	listenersList.set(key, listener);
-
-
 	tr.appendChild(td1);
 
+	//Shortcut Text
 	let td2 = document.createElement('td');
 	setAttributes(td2, {
 		'class': 'text_display',
@@ -248,6 +251,7 @@ function addRow(key, value) {
 	td2.appendChild(document.createTextNode(key));
 	tr.append(td2);
 
+	//URL Text
 	let td3 = document.createElement('td');
 	setAttributes(td3, {
 		'class': 'text_display',
@@ -264,6 +268,7 @@ function addRow(key, value) {
 	table.appendChild(tr);
 }
 
+//Create Table
 function createTable() {
 	deleteTable();
 	for (const [key, value] of Object.entries(shortcuts)) {
@@ -271,6 +276,8 @@ function createTable() {
 	}
 }
 
+//Add new shortcut to database
+//doRefresh: Do you want to refresh Storage when adding
 function addShortcut(key, value, doRefresh = true) {
 	if (shortcuts[key] != null)
 		deleteShortcut(key, false);
@@ -280,10 +287,12 @@ function addShortcut(key, value, doRefresh = true) {
 		refresh();
 }
 
+//Deleteing a shortcut
+//doRefresh: Do you want to refresh Storage when adding
 function deleteShortcut(key, doRefresh = true) {
 	delete shortcuts[key];
 	var row = elementById(getRowId(key));
-	var link = elementById(getCheckboxId(key));
+	var link = elementById(getDeleteButtonId(key));
 	link.removeEventListener('click', listenersList[key]);
 	listenersList.delete(key);
 	row.remove();
@@ -293,15 +302,15 @@ function deleteShortcut(key, doRefresh = true) {
 
 //-------------Default Calls
 function loadURL() {
+	//Get Page info of the page for which we want the shortcut
 	OnDocLoad(() => {
-		chrome.runtime.sendMessage({ command: "get_url" }, (pageinfo) => {
+		chrome.runtime.sendMessage({ command: "get_page_info" }, (pageinfo) => {
 			addAddListener();
 			elementById('url').value = pageinfo.url;
 			urlToTitle[pageinfo.url] = pageinfo.title;
 		});
 	});
 }
-
 
 function init() {
 	try {
@@ -314,6 +323,7 @@ function init() {
 }
 init();
 
+//Getting Page Data from background.js 
 chrome.runtime.onMessage.addListener((message) => {
 	switch (message.command) {
 		case ("reload_URL"):
