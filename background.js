@@ -77,7 +77,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 			case "load":
 				shortcuts = message.data;
 				break;
-			case "get_url":
+			case "get_page_info":
 				sendResponse({ url: tabURL, title: tabTitle });
 				return true;
 		}

@@ -306,8 +306,8 @@ function loadURL() {
 	OnDocLoad(() => {
 		chrome.runtime.sendMessage({ command: "get_page_info" }, (pageinfo) => {
 			addAddListener();
-			// elementById('url').value = pageinfo.url;
-			// urlToTitle[pageinfo.url] = pageinfo.title;
+			elementById('url').value = pageinfo.url;
+			urlToTitle[pageinfo.url] = pageinfo.title;
 		});
 	});
 }
