@@ -97,7 +97,6 @@ function save() {
 //Loading Data from storage
 function load(callback) {
 	chrome.storage.sync.get(['shortcuts', 'urlToTitle'], (data) => {
-		console.log(data);
 		if (data.shortcuts)
 			shortcuts = data.shortcuts;
 		if (data.urlToTitle)

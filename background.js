@@ -2,6 +2,12 @@ let shortcuts = {};
 let tabURL = "";
 let tabTitle = "";
 
+//------------------------Utils
+function focusOn(tab) {
+	chrome.tabs.update(tab.id, { active: true });
+	chrome.windows.update(tab.windowId, { focused: true });
+}
+
 //------------------------Omnibox
 // Provide help text to the user.
 chrome.omnibox.setDefaultSuggestion({
@@ -15,17 +21,25 @@ chrome.omnibox.onInputEntered.addListener((text, disposition) => {
 	if (!url)
 		return;
 	try {
-		switch (disposition) {
-			case "currentTab":
-				chrome.tabs.update({ url })
-				break;
-			case "newForegroundTab":
-				chrome.tabs.create({ url });
-				break;
-			case "newBackgroundTab":
-				chrome.tabs.create({ url, active: false });
-				break;
-		}
+		chrome.tabs.query({}, (currentTabs) => {
+			for (const tab of currentTabs) {
+				if (tab.url === url) {
+					focusOn(tab);
+					return;
+				}
+			}
+			switch (disposition) {
+				case "currentTab":
+					chrome.tabs.update({ url })
+					break;
+				case "newForegroundTab":
+					chrome.tabs.create({ url });
+					break;
+				case "newBackgroundTab":
+					chrome.tabs.create({ url, active: false });
+					break;
+			}
+		});
 	}
 	catch (e) {
 		console.error(e);
@@ -54,10 +68,6 @@ chrome.omnibox.onInputChanged.addListener((text, suggest) => {
 
 //-------------------------------Popup
 async function refresh() {
-	// let data = await chrome.storage.sync.get('shortcuts');
-	// if (data.shortcuts)
-	//   shortcuts = data.shortcuts;
-
 	chrome.storage.sync.get("shortcuts", function (data) {
 		try {
 			if (data.shortcuts)
@@ -106,8 +116,7 @@ async function openPage() {
 					for (var i = 1; i < extTabs.length; i++)
 						chrome.tabs.remove(extTabs[i].id);
 
-					chrome.tabs.update(extTabs[0].id, { active: true });
-					chrome.windows.update(extTabs[0].windowId, { focused: true });
+					focusOn(extTabs[0]);
 
 					//Sending New URL to the extension
 					chrome.tabs.sendMessage(extTabs[0].id, { command: 'reload_URL' });
