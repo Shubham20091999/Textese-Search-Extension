@@ -130,7 +130,7 @@ async function openPage() {
 }
 
 //-----------------------Default Calls
-chrome.browserAction.onClicked.addListener(openPage);
+chrome.action.onClicked.addListener(openPage);
 refresh();
 
 chrome.commands.onCommand.addListener(function (message) {

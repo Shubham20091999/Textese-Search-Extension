@@ -1,8 +1,8 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
   "name": "Textese Search",
   "description": "To use, type '.' + Your Shortcut in URL bar",
-  "version": "1.5",
+  "version": "1.6",
   "browser_specific_settings": {
     "gecko": {
       "id": "shubham20091999@gmail.com",
@@ -18,13 +18,12 @@
   "background": {
     "scripts": [
       "background.js"
-    ],
-    "persistent": true
+    ]
   },
   "omnibox": {
     "keyword": "."
   },
-  "browser_action": {
+  "action": {
     "default_icon": "icons/Icon32.png",
     "default_title": "Shortcuts"
   },
