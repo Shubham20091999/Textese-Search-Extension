@@ -3,12 +3,6 @@
   "name": "Textese Search",
   "description": "To use, type '.' + Your Shortcut in URL bar",
   "version": "1.6",
-  "browser_specific_settings": {
-    "gecko": {
-      "id": "shubham20091999@gmail.com",
-      "strict_min_version": "57.0"
-    }
-  },
   "icons": {
     "16": "icons/Icon16.png",
     "48": "icons/Icon48.png",
@@ -16,9 +10,7 @@
     "128": "icons/Icon128.png"
   },
   "background": {
-    "scripts": [
-      "background.js"
-    ]
+    "service_worker": "background.js"
   },
   "omnibox": {
     "keyword": "."
