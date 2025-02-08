@@ -1,4 +1,5 @@
 let shortcuts = {};
+let jump_to_tab = true;
 let tabURL = "";
 let tabTitle = "";
 
@@ -14,18 +15,24 @@ chrome.omnibox.setDefaultSuggestion({
 	description: `Type to get Suggestions and Autocomplete`
 });
 
+//TODO... improve ui colors
 
 // Open the page based on how the user clicks on a suggestion.
 chrome.omnibox.onInputEntered.addListener((text, disposition) => {
-	url = shortcuts[text];
+	url = shortcuts[text.trim()];
 	if (!url)
 		return;
 	try {
 		chrome.tabs.query({}, (currentTabs) => {
-			for (const tab of currentTabs) {
-				if (tab.url === url) {
-					focusOn(tab);
-					return;
+			if (jump_to_tab) {
+				for (const tab of currentTabs) {
+					const taburl = tab.url.replaceAll("/", "");
+					const jumpToUrl = url.replaceAll("/", "");
+
+					if (taburl === jumpToUrl) {
+						focusOn(tab);
+						return;
+					}
 				}
 			}
 			switch (disposition) {
@@ -49,7 +56,7 @@ chrome.omnibox.onInputEntered.addListener((text, disposition) => {
 function createSuggestionsFromResponse(response) {
 	ret = [];
 	for (const [key, value] of Object.entries(shortcuts)) {
-		if (key.startsWith(response) || key == response) {
+		if ((key.startsWith(response) || key == response) && value) {
 			ret.push({ content: key, description: value });
 		}
 	}
@@ -68,10 +75,12 @@ chrome.omnibox.onInputChanged.addListener((text, suggest) => {
 
 //-------------------------------Popup
 async function refresh() {
-	chrome.storage.sync.get("shortcuts", function (data) {
+	chrome.storage.sync.get(['shortcuts', 'jump_to_tab'], function (data) {
 		try {
 			if (data.shortcuts)
 				shortcuts = data.shortcuts;
+			if (data.jump_to_tab !== null)
+				jump_to_tab = data.jump_to_tab;
 
 		}
 		catch (e) {
@@ -86,6 +95,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 		switch (message.command) {
 			case "load":
 				shortcuts = message.data;
+				break;
+			case "load_jump_to_tab":
+				jump_to_tab = message.data;
 				break;
 			case "get_page_info":
 				sendResponse({ url: tabURL, title: tabTitle });

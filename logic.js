@@ -1,5 +1,6 @@
 //Map from shortcuts to url
 let shortcuts = {};
+let jump_to_tab = true;
 //Map from url to Title
 let urlToTitle = {};
 //Table HTML Element
@@ -69,6 +70,7 @@ function getDisplayTextFromURL(url) {
 //Reload Table
 function reload() {
 	refresh();
+	refresh_jump_to_tab();
 	deleteTable();
 	createTable();
 }
@@ -89,18 +91,30 @@ function refresh() {
 	save();
 }
 
+function refresh_jump_to_tab() {
+	//Send message to background to update jump_to_tab_state
+	chrome.runtime.sendMessage({
+		command: "load_jump_to_tab",
+		data: jump_to_tab
+	});
+	save();
+}
+
 //Saving Data Into Storage
 function save() {
-	chrome.storage.sync.set({ shortcuts, urlToTitle });
+	chrome.storage.sync.set({ shortcuts, urlToTitle, jump_to_tab });
 }
 
 //Loading Data from storage
 function load(callback) {
-	chrome.storage.sync.get(['shortcuts', 'urlToTitle'], (data) => {
+	chrome.storage.sync.get(['shortcuts', 'urlToTitle', 'jump_to_tab'], (data) => {
+
 		if (data.shortcuts)
 			shortcuts = data.shortcuts;
 		if (data.urlToTitle)
 			urlToTitle = data.urlToTitle;
+		if (data.jump_to_tab !== null)
+			jump_to_tab = data.jump_to_tab;
 		callback();
 	});
 }
@@ -116,6 +130,9 @@ function addAddListener() {
 		var clear_button = elementById('clear');
 		var export_button = elementById("export");
 		var import_button = elementById("import");
+		var jump_to_tab_checkbox = elementById("jump_to_tab");
+
+		jump_to_tab_checkbox.checked = jump_to_tab;
 
 		//Legacy:Dont show setting button if its a popup
 		if (!isPopup) {
@@ -127,6 +144,12 @@ function addAddListener() {
 				window.close();
 			});
 		}
+
+		jump_to_tab_checkbox.addEventListener("change", function () {
+			jump_to_tab = jump_to_tab_checkbox.checked;
+			refresh_jump_to_tab();
+			save();
+		});
 
 		//Clear All Button
 		clear_button.addEventListener('click', function () {
@@ -159,6 +182,7 @@ function addAddListener() {
 						try {
 							shortcuts = JSON.parse(evt.target.result);
 							reload();
+							import_button.value = "";
 						}
 						catch (e) {
 							alert("File Cannot be Parsed");
@@ -192,6 +216,31 @@ function addAddListener() {
 				}
 			});
 		});
+
+		const settingsButton = document.querySelector(".settings-btn");
+		const menuButtons = document.querySelectorAll(".menu-btn");
+		const settingsContainer = document.querySelector(".settings-container");
+		function toggleMenu() {
+			menuButtons.forEach((btn, index) => {
+				setTimeout(() => {
+					btn.classList.toggle("show");
+				}, index * 100);
+			});
+		}
+
+		function closeMenu(event) {
+			if (!settingsContainer.contains(event.target)) {
+				menuButtons.forEach((btn, index) => {
+					setTimeout(() => {
+						btn.classList.remove("show");
+					}, index * 100);
+				});
+			}
+		}
+
+		settingsButton.addEventListener("click", toggleMenu);
+
+		document.addEventListener("click", closeMenu);
 	});
 }
 
@@ -224,7 +273,7 @@ function addRow(key, value) {
 	//Delete Button
 	let td1 = document.createElement('td');
 	setAttributes(td1,
-		{'align':'center'});
+		{ 'align': 'center' });
 	let input = document.createElement('input');
 	setAttributes(input, {
 		'type': 'image',
@@ -278,8 +327,16 @@ function createTable() {
 //Add new shortcut to database
 //doRefresh: Do you want to refresh Storage when adding
 function addShortcut(key, value, doRefresh = true) {
+	key = key.trim();
 	if (shortcuts[key] != null)
 		deleteShortcut(key, false);
+	if (!value.includes("://")) {
+		if (!value.startsWith("www.")) {
+			value = "www." + value;
+		}
+		value = "https://" + value;
+	}
+
 	shortcuts[key] = value;
 	addRow(key, value);
 	if (doRefresh)

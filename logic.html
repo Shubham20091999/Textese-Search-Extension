@@ -75,11 +75,61 @@
         .button_style:hover {
             filter: brightness(150%);
         }
+
+
+        .settings-container {
+            position: fixed;
+            bottom: 40px;
+            right: 20px;
+            margin: 10px;
+            display: flex;
+            flex-direction: column-reverse;
+            align-items: center;
+
+        }
+
+        .settings-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 18px;
+            margin: 5px 0;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .settings-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .menu-btn {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 10px 15px;
+            margin: 5px 0;
+            cursor: pointer;
+
+            /* Hide buttons initially but keep them in position */
+            opacity: 0;
+            transform: translateY(10px);
+            pointer-events: none;
+            /* Prevent interaction */
+            transition: opacity 0.3s ease, transform 0.3s ease, height 0.3s ease;
+        }
+
+        .menu-btn.show {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+            /* Allow interaction */
+        }
     </style>
 </head>
 
 <body style="background-color:#121212;">
-
 
     <table>
         <tr>
@@ -96,30 +146,24 @@
         <tbody id="sc_table"></tbody>
     </table>
 
-    <table>
-        <tr style="float: right;">
-            <td>
-                <button class="button_style" id="clear" style="background-color: #b00020;">
-                    Clear
-                </button>
-            </td>
-            <td>
-                <button class="button_style" id="export" style="background-color: #3700b3;">
-                    Export
-                </button>
-            </td>
-            <td>
-                <!-- <input type="file"  class="button_style" id="import" style="background-color: green;" title="Import" /> -->
-                <label for="import" class="button_style" style="background-color: green;">
-                    Import
-                </label>
-                <input id="import" type="file" accept="application/json, text/plain" style="display: none;" />
-            </td>
 
 
-        </tr>
-    </table>
+    <div class="settings-container">
+        <button class="settings-btn">⚙</button>
+        <button class="menu-btn button_style" id="clear" style="background-color: #b00020;">Clear</button>
+        <button class="menu-btn button_style" id="export" style="background-color: #3700b3;">Export</button>
+        <label for="import" class="menu-btn button_style" style="background-color: green;">
+            Import
+            <input id="import" type="file" accept="application/json, text/plain" style="display: none;" />
+        </label>
+        <label for="jump_to_tab" class="menu-btn button_style" style="background-color: cornflowerblue;">
+            Jump to Tab
+            <input type="checkbox" id="jump_to_tab" name="jump_to_tab" value="jump_to_tab">
+        </label>
+
+    </div>
 </body>
-<script src="logic.js"></script>
+<script src="logic.js">
+</script>
 
 </html>
